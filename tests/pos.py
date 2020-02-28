@@ -27,4 +27,16 @@ result = cp.parse(tag)
 print("Result: {}".format(result))
 result.draw()
 
+# Couting pos tags
+print("\nCounting pos tags")
+
+from collections import Counter
+text = "I am learning natural language processing using python."
+text = text.lower()
+tokens = nltk.word_tokenize(text)
+tags = nltk.pos_tag(tokens)
+counts = Counter(tag for word,tag in tags)
+print("Counts: {}".format(counts))
+
+
 
