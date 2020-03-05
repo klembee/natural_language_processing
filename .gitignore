@@ -1,4 +1,5 @@
 /venv/
 /.idea/
 /tests/word2vec/model.bin
-/tests/names_classifier/data/names/
+/tests/names/data/names/
+/tests/names/name_generator/savedModel.x

@@ -241,7 +241,7 @@ def loadNames():
             an array of names
     """
 
-    dir = "./data/names/"
+    dir = "../data/names/"
     lang2names = {}
     for language in languages:
         # Open the file and load the data into the dictionary
