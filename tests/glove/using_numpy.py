@@ -1,10 +1,11 @@
 import numpy
 import nltk
 from nltk.corpus import brown
+from tests.glove.Dictionary import Dictionary
 
 context_size = 2
-SOS = 0
-EOS = 1
+wordVectorDimension = 50
+dictionary = Dictionary()
 
 
 def getContextWords(sentence, position):
@@ -47,9 +48,24 @@ def createWordToContextList():
     word2context_words = []
 
     for sentence in brown.sents():
+        dictionary.addSentence(sentence)
+
         for index, word in enumerate(sentence):
-            word2context_words.append((word, getContextWords(sentence, index)))
+            word_index = dictionary.word2Index[word]
+            word2context_words.append((word_index, getContextWords(sentence, index)))
 
     return word2context_words
 
-print(createWordToContextList()[:10])
+
+def main():
+    createWordToContextList()
+
+    embeding_mat = numpy.random.rand(dictionary.nbWords, 50)
+    print(embeding_mat)
+
+    print(dictionary.nbWords)
+    print(dictionary.sentenceToIndices("The dog runs over the long grass"))
+
+
+if __name__ == "__main__":
+    main()
