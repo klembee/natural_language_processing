@@ -1,3 +1,5 @@
+import numpy
+
 SOS = 0
 EOS = 1
 
@@ -20,6 +22,11 @@ class Dictionary:
 
         for word in sent:
             self.addWord(word)
+
+    def getOneHot(self, word):
+        one_hot = numpy.zeros((self.nbWords, 1))
+        one_hot[self.word2Index[word]] = 1
+        return one_hot
 
     def sentenceToIndices(self, sent):
         if not type(sent) is list:

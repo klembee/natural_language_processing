@@ -26,7 +26,7 @@ def getContextWords(sentence, position):
         if context_word_pos < 0:
             context_words.append(("<SOS>", distance))
         elif context_word_pos >= len(words):
-            context_words.append(("<ESO>", distance))
+            context_words.append(("<EOS>", distance))
         else:
             context_words.append((words[context_word_pos], distance))
 
@@ -51,17 +51,36 @@ def createWordToContextList():
         dictionary.addSentence(sentence)
 
         for index, word in enumerate(sentence):
-            word_index = dictionary.word2Index[word]
-            word2context_words.append((word_index, getContextWords(sentence, index)))
+            word2context_words.append((word, getContextWords(sentence, index)))
 
     return word2context_words
 
 
 def main():
-    createWordToContextList()
+    word2context = createWordToContextList()
 
-    embeding_mat = numpy.random.rand(dictionary.nbWords, 50)
-    print(embeding_mat)
+    contexts_embeding_mat = numpy.random.rand(2 * context_size, dictionary.nbWords, 50)
+    word_embeding_mat = numpy.random.rand(dictionary.nbWords, 50)
+    hidden_to_output = numpy.random.rand(50, 1)
+
+    # Try to get better values for the embeding matrix
+    for word_and_context in word2context:
+        word = word_and_context[0]
+        contexts = word_and_context[1]
+
+        one_hot_word = dictionary.getOneHot(word)
+        one_hot_contexts = \
+            numpy.array([dictionary.getOneHot(context[0]) for context in contexts]).reshape((2 * context_size, dictionary.nbWords, 1))
+
+        word_layer_1 = one_hot_word.dot(word_embeding_mat)
+        # contexts_layer_1 = one_hot_contexts.dot(contexts_embeding_mat)
+
+        print(one_hot_word.shape, word_embeding_mat.shape)
+        output = word_layer_1.dot(hidden_to_output)
+        print(output)
+
+
+
 
     print(dictionary.nbWords)
     print(dictionary.sentenceToIndices("The dog runs over the long grass"))
