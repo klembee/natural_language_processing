@@ -2,6 +2,7 @@ import numpy
 import nltk
 from nltk.corpus import brown
 from tests.glove.Dictionary import Dictionary
+import math
 
 context_size = 2
 wordVectorDimension = 50
@@ -61,23 +62,36 @@ def main():
 
     contexts_embeding_mat = numpy.random.rand(2 * context_size, dictionary.nbWords, 50)
     word_embeding_mat = numpy.random.rand(dictionary.nbWords, 50)
-    hidden_to_output = numpy.random.rand(50, 1)
+    hidden_to_output = numpy.random.rand(50, dictionary.nbWords)
 
     # Try to get better values for the embeding matrix
     for word_and_context in word2context:
         word = word_and_context[0]
         contexts = word_and_context[1]
 
-        one_hot_word = dictionary.getOneHot(word)
+        one_hot_word = numpy.array(dictionary.getOneHot(word))
         one_hot_contexts = \
             numpy.array([dictionary.getOneHot(context[0]) for context in contexts]).reshape((2 * context_size, dictionary.nbWords, 1))
 
-        word_layer_1 = one_hot_word.dot(word_embeding_mat)
-        # contexts_layer_1 = one_hot_contexts.dot(contexts_embeding_mat)
+        # embeded_word = word_embeding_mat[numpy.argmax(one_hot_word)]
+        embeded_contexes = numpy.array([word_embeding_mat[numpy.argmax(one_hot_context)] for one_hot_context in one_hot_contexts])
 
-        print(one_hot_word.shape, word_embeding_mat.shape)
-        output = word_layer_1.dot(hidden_to_output)
-        print(output)
+        # Concatenate the embeded words together
+        layer1 = numpy.ones((1, wordVectorDimension))
+
+        for embeded_contex in embeded_contexes:
+            layer1 = numpy.multiply(layer1, embeded_contex)
+
+        prediction = numpy.tanh(layer1.dot(hidden_to_output)).T
+
+        # Compute the loss
+        loss = 0
+
+        # print(one_hot_word.shape, prediction.shape)
+        loss = numpy.sum(numpy.exp2(numpy.subtract(one_hot_word, prediction)))
+        print(loss)
+
+        # print(dictionary.index2Word[numpy.argmax(output)])
 
 
 
