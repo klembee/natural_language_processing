@@ -79,22 +79,19 @@ def main():
         # Concatenate the embeded words together
         layer1 = numpy.ones((1, wordVectorDimension))
 
+        print(layer1.shape, embeded_contexes.shape)
         for embeded_contex in embeded_contexes:
-            layer1 = numpy.multiply(layer1, embeded_contex)
+            layer1 = numpy.dot(layer1, embeded_contex)
 
         prediction = numpy.tanh(layer1.dot(hidden_to_output)).T
 
-        # Compute the loss
-        loss = 0
-
-        # print(one_hot_word.shape, prediction.shape)
+        # Compute the MSE loss
         loss = numpy.sum(numpy.exp2(numpy.subtract(one_hot_word, prediction)))
-        print(loss)
 
-        # print(dictionary.index2Word[numpy.argmax(output)])
+        gradient = numpy.multiply(layer1, -1)
+        gradient = numpy.add(numpy.multiply(layer1, numpy.exp2(numpy.tanh(numpy.dot(hidden_to_output.T, layer1)))))
 
-
-
+        print(gradient)
 
     print(dictionary.nbWords)
     print(dictionary.sentenceToIndices("The dog runs over the long grass"))
