@@ -20,57 +20,28 @@ class POSTagger(nn.Module):
     def forward(self, one_hot_word):
         return self.hidden2output(one_hot_word)
 
-    def train(self, x, y, loss_func, optimizer, model_save_file):
 
-        total_loss = 0
+class POSTaggerReccurent(nn.Module):
 
-        for i in range(len(x)):
-            word = torch.Tensor(x[i]).to(self.device)
-            target = torch.Tensor(y[i]).to(self.device)
+    def __init__(self, vocab_size, output_size, hidden_size, device):
+        super(POSTaggerReccurent, self).__init__()
 
-            optimizer.zero_grad()
+        self.hidden_size = hidden_size
 
-            prediction = self(word)
-            loss = loss_func(prediction, target)
-            total_loss += loss
+        self.i2h = nn.Linear(vocab_size + hidden_size, hidden_size)
+        self.i2o = nn.Linear(vocab_size + hidden_size, output_size)
+        self.softmax = nn.LogSoftmax(dim = 1)
 
-            # print()
-            # print(prediction)
-            # print(target)
+    def forward(self, input, hidden):
+        combined = torch.cat((input, hidden), 1)
+        next_hidden = self.i2h(combined)
+        output = self.i2o(combined)
+        output = self.softmax(output)
 
-            loss.backward()
-            optimizer.step()
+        return output, next_hidden
 
-            if i % self.printEvery == 0:
-                print("{}/{}: {}".format(i, len(x), total_loss/self.printEvery))
-                total_loss = 0
-
-        torch.save(self.state_dict(), model_save_file)
-
-    def test(self, x, y):
-        """
-        Test the network with the provided inputs and outputs
-        :param x: the inputs to give to the network
-        :param y: the expected outputs of the network
-        """
-
-        nb_rights = 0
-
-
-        for i in range(len(x)):
-            input = torch.Tensor(x[i]).to(self.device)
-            output = torch.Tensor(y[i]).to(self.device)
-
-            prediction = self(input)
-
-            pred_highest_index = torch.argmax(prediction)
-            output_highest_index = torch.argmax(output)
-
-            if(pred_highest_index == output_highest_index):
-                nb_rights += 1
-
-            if (i + 1) % self.printEvery == 0:
-                print("{} %".format((nb_rights/i) * 100))
+    def initHidden(self):
+        return torch.zeros(1, self.hidden_size)
 
 
 
